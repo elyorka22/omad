@@ -123,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen>
                 'Быстро. Удобно. Надёжно.',
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.textPrimary.withOpacity(0.7),
+                  color: AppColors.textPrimary.withValues(alpha: 0.7),
                 ),
               ),
             ],

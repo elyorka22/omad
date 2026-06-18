@@ -15,6 +15,7 @@ class AppColors {
   static const Color pickupMarker = Color(0xFF4CAF50);
   static const Color dropoffMarker = Color(0xFFE53935);
   static const Color driverMarker = Color(0xFF2196F3);
+  static const Color userLocation = Color(0xFF1A73E8);
 }
 
 class AppTheme {

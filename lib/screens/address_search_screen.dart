@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../providers/ride_provider.dart';
 import '../theme/app_theme.dart';
@@ -29,7 +30,8 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
   }
 
   void _onSearchChanged() {
-    final results = context.read<RideProvider>().searchAddresses(_controller.text);
+    final results =
+        context.read<RideProvider>().searchAddresses(_controller.text);
     setState(() => _results = results);
   }
 
@@ -51,9 +53,11 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isPickup ? 'Откуда' : 'Куда'),
+        title: Text(widget.isPickup ? l10n.from : l10n.to),
       ),
       body: Column(
         children: [
@@ -63,7 +67,7 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
               controller: _controller,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Введите адрес',
+                hintText: l10n.enterAddress,
                 prefixIcon: Icon(
                   widget.isPickup ? Icons.trip_origin : Icons.location_on,
                   color: widget.isPickup

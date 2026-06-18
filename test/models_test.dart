@@ -15,7 +15,7 @@ void main() {
       );
     });
 
-    test('each class has localized title', () {
+    test('each class has localized title in extension', () {
       for (final rideClass in RideClass.values) {
         expect(rideClass.title, isNotEmpty);
       }
@@ -23,12 +23,24 @@ void main() {
   });
 
   group('RouteService', () {
-    test('calculates price for a ride', () {
+    test('calculates price for a ride in Russian locale', () {
       final service = RouteService();
       final price = service.calculatePrice(
         distanceKm: 5,
         durationMinutes: 15,
         rideClass: RideClass.economy,
+        languageCode: 'ru',
+      );
+      expect(price, greaterThan(0));
+    });
+
+    test('calculates price for a ride in Uzbek locale', () {
+      final service = RouteService();
+      final price = service.calculatePrice(
+        distanceKm: 5,
+        durationMinutes: 15,
+        rideClass: RideClass.economy,
+        languageCode: 'uz',
       );
       expect(price, greaterThan(0));
     });

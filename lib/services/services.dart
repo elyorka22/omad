@@ -2,12 +2,18 @@ import 'dart:math';
 
 import 'package:latlong2/latlong.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 
 class LocationService {
-  static const LatLng defaultCenter = LatLng(55.7558, 37.6173);
+  static const LatLng moscowCenter = LatLng(55.7558, 37.6173);
+  static const LatLng tashkentCenter = LatLng(41.2995, 69.2401);
 
-  static final List<Address> popularPlaces = [
+  static LatLng defaultCenterFor(String languageCode) {
+    return languageCode == 'uz' ? tashkentCenter : moscowCenter;
+  }
+
+  static final List<Address> moscowPlaces = [
     const Address(
       title: 'Красная площадь',
       subtitle: 'Москва, центр',
@@ -38,24 +44,52 @@ class LocationService {
       subtitle: 'Лужнецкая наб., 24',
       location: LatLng(55.7157, 37.5537),
     ),
+  ];
+
+  static final List<Address> tashkentPlaces = [
     const Address(
-      title: 'Третьяковская галерея',
-      subtitle: 'Лаврушинский пер., 10',
-      location: LatLng(55.7414, 37.6208),
+      title: 'Mustaqillik maydoni',
+      subtitle: 'Toshkent, markaz',
+      location: LatLng(41.3111, 69.2797),
     ),
     const Address(
-      title: 'Внуково',
-      subtitle: 'Международный аэропорт',
-      location: LatLng(55.5965, 37.2615),
+      title: 'Toshkent metro',
+      subtitle: 'Amir Temur ko\'chasi',
+      location: LatLng(41.3110, 69.2405),
+    ),
+    const Address(
+      title: 'Chorsu bozori',
+      subtitle: 'Beruniy ko\'chasi',
+      location: LatLng(41.3268, 69.2347),
+    ),
+    const Address(
+      title: 'Tashkent City',
+      subtitle: 'Islom Karimov ko\'chasi',
+      location: LatLng(41.3180, 69.2510),
+    ),
+    const Address(
+      title: 'Toshkent aeroporti',
+      subtitle: 'Xalqaro aeroport',
+      location: LatLng(41.2579, 69.2812),
+    ),
+    const Address(
+      title: 'Magic City',
+      subtitle: 'Kichik halqa yo\'li',
+      location: LatLng(41.2950, 69.2030),
     ),
   ];
 
-  List<Address> searchAddresses(String query) {
+  List<Address> popularPlacesFor(String languageCode) {
+    return languageCode == 'uz' ? tashkentPlaces : moscowPlaces;
+  }
+
+  List<Address> searchAddresses(String query, String languageCode) {
+    final places = popularPlacesFor(languageCode);
     if (query.trim().isEmpty) {
-      return popularPlaces;
+      return places;
     }
     final lower = query.toLowerCase();
-    return popularPlaces
+    return places
         .where(
           (place) =>
               place.title.toLowerCase().contains(lower) ||
@@ -64,11 +98,12 @@ class LocationService {
         .toList();
   }
 
-  Address addressNear(LatLng location) {
+  Address addressNear(LatLng location, AppLocalizations l10n) {
+    final places = popularPlacesFor(l10n.languageCode);
     Address? nearest;
     double minDistance = double.infinity;
 
-    for (final place in popularPlaces) {
+    for (final place in places) {
       final distance = const Distance().as(
         LengthUnit.Kilometer,
         location,
@@ -81,13 +116,14 @@ class LocationService {
     }
 
     return nearest?.copyWith(
-          title: 'Текущее местоположение',
+          title: l10n.currentLocation,
           subtitle: nearest.title,
           location: location,
         ) ??
         Address(
-          title: 'Текущее местоположение',
-          subtitle: '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}',
+          title: l10n.currentLocation,
+          subtitle:
+              '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}',
           location: location,
         );
   }
@@ -107,10 +143,11 @@ class RouteService {
     required double distanceKm,
     required int durationMinutes,
     required RideClass rideClass,
+    required String languageCode,
   }) {
-    const baseFare = 99;
-    const perKm = 18;
-    const perMinute = 5;
+    final baseFare = languageCode == 'uz' ? 5000 : 99;
+    final perKm = languageCode == 'uz' ? 2500 : 18;
+    final perMinute = languageCode == 'uz' ? 500 : 5;
 
     final raw = baseFare +
         (distanceKm * perKm).round() +
@@ -145,7 +182,7 @@ class RouteService {
 }
 
 class DriverService {
-  final _drivers = [
+  final _driversRu = [
     const Driver(
       id: 'd1',
       name: 'Алексей',
@@ -173,20 +210,46 @@ class DriverService {
       location: LatLng(55.7610, 37.6080),
       photoEmoji: '👩‍✈️',
     ),
+  ];
+
+  final _driversUz = [
     const Driver(
-      id: 'd4',
-      name: 'Игорь',
-      carModel: 'Mercedes E-class',
-      carNumber: 'Е321ОР777',
-      rating: 4.97,
-      location: LatLng(55.7480, 37.6300),
-      photoEmoji: '🧑‍✈️',
+      id: 'u1',
+      name: 'Jasur',
+      carModel: 'Chevrolet Cobalt',
+      carNumber: '01A123BC',
+      rating: 4.91,
+      location: LatLng(41.3050, 69.2450),
+      photoEmoji: '👨‍✈️',
+    ),
+    const Driver(
+      id: 'u2',
+      name: 'Sardor',
+      carModel: 'Daewoo Nexia',
+      carNumber: '01B456DE',
+      rating: 4.87,
+      location: LatLng(41.2980, 69.2520),
+      photoEmoji: '👨',
+    ),
+    const Driver(
+      id: 'u3',
+      name: 'Dilnoza',
+      carModel: 'Toyota Camry',
+      carNumber: '01C789FG',
+      rating: 4.96,
+      location: LatLng(41.3120, 69.2380),
+      photoEmoji: '👩‍✈️',
     ),
   ];
 
-  Driver findNearestDriver(LatLng pickup, RideClass rideClass) {
-    final index = rideClass.index % _drivers.length;
-    final driver = _drivers[index];
+  Driver findNearestDriver(
+    LatLng pickup,
+    RideClass rideClass,
+    String languageCode,
+  ) {
+    final drivers = languageCode == 'uz' ? _driversUz : _driversRu;
+    final index = rideClass.index % drivers.length;
+    final driver = drivers[index];
     return Driver(
       id: driver.id,
       name: driver.name,

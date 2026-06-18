@@ -121,15 +121,17 @@ class RideClassCard extends StatelessWidget {
   const RideClassCard({
     super.key,
     required this.rideClass,
-    required this.price,
-    required this.etaMinutes,
+    required this.title,
+    required this.priceLabel,
+    required this.etaLabel,
     required this.isSelected,
     required this.onTap,
   });
 
   final RideClass rideClass;
-  final int price;
-  final int etaMinutes;
+  final String title;
+  final String priceLabel;
+  final String etaLabel;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -159,7 +161,7 @@ class RideClassCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              rideClass.title,
+              title,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
@@ -167,7 +169,7 @@ class RideClassCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              '$etaMinutes мин',
+              etaLabel,
               style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.textSecondary,
@@ -175,7 +177,7 @@ class RideClassCard extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '$price ₽',
+              priceLabel,
               style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
@@ -193,10 +195,12 @@ class DriverCard extends StatelessWidget {
     super.key,
     required this.driver,
     required this.etaText,
+    required this.arrivalLabel,
   });
 
   final Driver driver;
   final String etaText;
+  final String arrivalLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -263,9 +267,9 @@ class DriverCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Text(
-                'прибытие',
-                style: TextStyle(
+              Text(
+                arrivalLabel,
+                style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
@@ -352,6 +356,122 @@ class MapMarkerWidget extends StatelessWidget {
         const SizedBox(height: 2),
         Icon(Icons.location_on, color: color, size: 32),
       ],
+    );
+  }
+}
+
+class UserLocationMarker extends StatefulWidget {
+  const UserLocationMarker({super.key});
+
+  @override
+  State<UserLocationMarker> createState() => _UserLocationMarkerState();
+}
+
+class _UserLocationMarkerState extends State<UserLocationMarker>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: AnimatedBuilder(
+        animation: _pulseController,
+        builder: (context, child) {
+          final scale = 1.0 + _pulseController.value * 0.8;
+          final opacity = 0.5 * (1 - _pulseController.value);
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.userLocation.withValues(alpha: opacity),
+                  ),
+                ),
+              ),
+              child!,
+            ],
+          );
+        },
+        child: Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            color: AppColors.userLocation,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.userLocation.withValues(alpha: 0.5),
+                blurRadius: 8,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MapFloatingButton extends StatelessWidget {
+  const MapFloatingButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.isActive = false,
+    this.tooltip,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool isActive;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: isActive ? AppColors.primary : AppColors.surface,
+      shape: const CircleBorder(),
+      elevation: 6,
+      shadowColor: Colors.black.withValues(alpha: 0.25),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Tooltip(
+          message: tooltip ?? '',
+          child: SizedBox(
+            width: 52,
+            height: 52,
+            child: Icon(
+              icon,
+              color: AppColors.textPrimary,
+              size: 24,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

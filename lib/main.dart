@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'l10n/app_localizations.dart';
+import 'providers/locale_provider.dart';
 import 'providers/ride_provider.dart';
 import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
@@ -23,16 +26,33 @@ class TaxiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => RideProvider(),
-      child: MaterialApp(
-        title: 'TaxiGo',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light.copyWith(
-          textTheme: GoogleFonts.interTextTheme(AppTheme.light.textTheme),
-        ),
-        locale: const Locale('ru'),
-        home: const SplashScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => RideProvider()),
+      ],
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, _) {
+          return MaterialApp(
+            title: 'TaxiGo',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light.copyWith(
+              textTheme: GoogleFonts.interTextTheme(AppTheme.light.textTheme),
+            ),
+            locale: localeProvider.locale,
+            supportedLocales: const [
+              Locale('ru'),
+              Locale('uz'),
+            ],
+            localizationsDelegates: const [
+              AppLocalizationsDelegate(),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }
@@ -87,6 +107,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Center(
@@ -101,6 +123,13 @@ class _SplashScreenState extends State<SplashScreen>
                 decoration: BoxDecoration(
                   color: AppColors.textPrimary,
                   borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.local_taxi,
@@ -120,7 +149,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                'Быстро. Удобно. Надёжно.',
+                l10n.appTagline,
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.textPrimary.withValues(alpha: 0.7),

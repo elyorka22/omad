@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/models.dart';
+import '../l10n/app_localizations.dart';
+import '../providers/locale_provider.dart';
 import '../providers/ride_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -12,11 +13,13 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ride = context.watch<RideProvider>();
+    final localeProvider = context.watch<LocaleProvider>();
+    final l10n = AppLocalizations.of(context);
     final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Профиль'),
+        title: Text(l10n.profile),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -24,31 +27,38 @@ class ProfileScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.2),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.35),
+                  AppColors.primary.withValues(alpha: 0.15),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 32,
                   backgroundColor: AppColors.primary,
                   child: Text('👤', style: TextStyle(fontSize: 28)),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Пользователь',
-                      style: TextStyle(
+                      l10n.user,
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      '+7 (999) 123-45-67',
-                      style: TextStyle(color: AppColors.textSecondary),
+                      l10n.isUzbek ? '+998 90 123 45 67' : '+7 (999) 123-45-67',
+                      style: const TextStyle(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -56,18 +66,51 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'История поездок',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          Text(
+            l10n.language,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _LanguageOption(
+                  label: l10n.russian,
+                  code: 'RU',
+                  isSelected: localeProvider.locale.languageCode == 'ru',
+                  onTap: () {
+                    localeProvider.setRussian();
+                    ride.updateLanguage('ru', AppLocalizations('ru'));
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _LanguageOption(
+                  label: l10n.uzbek,
+                  code: 'UZ',
+                  isSelected: localeProvider.locale.languageCode == 'uz',
+                  onTap: () {
+                    localeProvider.setUzbek();
+                    ride.updateLanguage('uz', AppLocalizations('uz'));
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            l10n.rideHistory,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           if (ride.history.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Center(
                 child: Text(
-                  'Пока нет поездок',
-                  style: TextStyle(color: AppColors.textSecondary),
+                  l10n.noRides,
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
               ),
             )
@@ -87,11 +130,11 @@ class ProfileScreen extends StatelessWidget {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      '${item.rideClass.title} · ${dateFormat.format(item.date)}',
+                      '${l10n.rideClassName(item.rideClass)} · ${dateFormat.format(item.date)}',
                     ),
                   ),
                   trailing: Text(
-                    '${item.price} ₽',
+                    l10n.formatPrice(item.price),
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -101,11 +144,66 @@ class ProfileScreen extends StatelessWidget {
               );
             }),
           const SizedBox(height: 24),
-          _MenuTile(icon: Icons.payment, title: 'Способы оплаты', onTap: () {}),
-          _MenuTile(icon: Icons.favorite_border, title: 'Избранные адреса', onTap: () {}),
-          _MenuTile(icon: Icons.support_agent, title: 'Поддержка', onTap: () {}),
-          _MenuTile(icon: Icons.settings, title: 'Настройки', onTap: () {}),
+          _MenuTile(icon: Icons.payment, title: l10n.payment, onTap: () {}),
+          _MenuTile(icon: Icons.favorite_border, title: l10n.favorites, onTap: () {}),
+          _MenuTile(icon: Icons.support_agent, title: l10n.support, onTap: () {}),
+          _MenuTile(icon: Icons.settings, title: l10n.settings, onTap: () {}),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  const _LanguageOption({
+    required this.label,
+    required this.code,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String code;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: isSelected
+          ? AppColors.primary.withValues(alpha: 0.3)
+          : AppColors.background,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                code,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

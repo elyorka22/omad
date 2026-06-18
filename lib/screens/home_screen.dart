@@ -182,20 +182,31 @@ class _LanguageChip extends StatelessWidget {
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       elevation: 4,
-      shadowColor: Colors.black26,
+      shadowColor: AppColors.accent.withValues(alpha: 0.2),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        child: Padding(
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.divider),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.language, size: 18),
+              ShaderMask(
+                shaderCallback: (bounds) =>
+                    AppColors.brandGradient.createShader(bounds),
+                child: const Icon(Icons.language, size: 18, color: Colors.white),
+              ),
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.accent,
+                ),
               ),
             ],
           ),
@@ -291,7 +302,7 @@ class _TaxiMap extends StatelessWidget {
                 points: ride.routePoints,
                 color: AppColors.routeLine,
                 strokeWidth: 5,
-                borderColor: Colors.white,
+                borderColor: AppColors.accentViolet.withValues(alpha: 0.4),
                 borderStrokeWidth: 2,
               ),
             ],
@@ -446,13 +457,17 @@ class _IdleSheet extends StatelessWidget {
       children: [
         Text(
           l10n.whereToGo,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
         ),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: AppColors.surfaceMuted,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.divider),
           ),

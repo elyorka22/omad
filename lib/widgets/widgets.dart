@@ -19,30 +19,61 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnabled = !isLoading && onPressed != null;
+
     return SizedBox(
       width: double.infinity,
       height: 56,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: AppColors.textPrimary,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 20),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(label),
-                ],
-              ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: isEnabled ? AppColors.brandGradient : null,
+          color: isEnabled ? null : AppColors.divider,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: isEnabled
+              ? [
+                  BoxShadow(
+                    color: AppColors.accent.withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isLoading ? null : onPressed,
+            borderRadius: BorderRadius.circular(16),
+            child: Center(
+              child: isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: AppColors.textOnPrimary,
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (icon != null) ...[
+                          Icon(icon, size: 20, color: AppColors.textOnPrimary),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          label,
+                          style: const TextStyle(
+                            color: AppColors.textOnPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -145,12 +176,21 @@ class RideClassCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.25) : AppColors.background,
+          color: isSelected ? AppColors.surfaceMuted : AppColors.background,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.transparent,
-            width: 2,
+            color: isSelected ? AppColors.primary : AppColors.divider,
+            width: isSelected ? 2 : 1,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,9 +218,10 @@ class RideClassCard extends StatelessWidget {
             const Spacer(),
             Text(
               priceLabel,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
+                color: isSelected ? AppColors.accent : AppColors.textPrimary,
               ),
             ),
           ],
@@ -207,8 +248,9 @@ class DriverCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
       ),
       child: Row(
         children: [
@@ -216,7 +258,7 @@ class DriverCard extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.3),
+              gradient: AppColors.brandGradient,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -246,7 +288,7 @@ class DriverCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.star, size: 16, color: AppColors.primary),
+                    const Icon(Icons.star, size: 16, color: AppColors.warning),
                     const SizedBox(width: 4),
                     Text(
                       driver.rating.toStringAsFixed(2),
@@ -452,21 +494,26 @@ class MapFloatingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isActive ? AppColors.primary : AppColors.surface,
+      color: isActive ? Colors.transparent : AppColors.surface,
       shape: const CircleBorder(),
       elevation: 6,
-      shadowColor: Colors.black.withValues(alpha: 0.25),
+      shadowColor: AppColors.accent.withValues(alpha: 0.3),
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
-        child: Tooltip(
-          message: tooltip ?? '',
-          child: SizedBox(
-            width: 52,
-            height: 52,
+        child: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: isActive ? AppColors.brandGradient : null,
+            color: isActive ? null : AppColors.surface,
+          ),
+          child: Tooltip(
+            message: tooltip ?? '',
             child: Icon(
               icon,
-              color: AppColors.textPrimary,
+              color: isActive ? AppColors.textOnPrimary : AppColors.accent,
               size: 24,
             ),
           ),

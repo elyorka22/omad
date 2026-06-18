@@ -27,22 +27,28 @@ class ProfileScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.35),
-                  AppColors.primary.withValues(alpha: 0.15),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppColors.brandGradientVertical,
               borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withValues(alpha: 0.25),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: Row(
               children: [
-                const CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.primary,
-                  child: Text('👤', style: TextStyle(fontSize: 28)),
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Text('👤', style: TextStyle(fontSize: 28)),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -53,12 +59,15 @@ class ProfileScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
+                        color: AppColors.textOnPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.isUzbek ? '+998 90 123 45 67' : '+7 (999) 123-45-67',
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(
+                        color: AppColors.textOnPrimary.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
@@ -171,7 +180,7 @@ class _LanguageOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: isSelected
-          ? AppColors.primary.withValues(alpha: 0.3)
+          ? AppColors.surfaceMuted
           : AppColors.background,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
@@ -182,17 +191,19 @@ class _LanguageOption extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? AppColors.primary : Colors.transparent,
-              width: 2,
+              color: isSelected ? AppColors.accent : AppColors.divider,
+              width: isSelected ? 2 : 1,
             ),
+            gradient: isSelected ? AppColors.cardGradient : null,
           ),
           child: Column(
             children: [
               Text(
                 code,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
+                  color: isSelected ? AppColors.accent : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 4),

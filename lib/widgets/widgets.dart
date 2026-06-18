@@ -88,6 +88,7 @@ class AddressRow extends StatelessWidget {
     required this.subtitle,
     this.onTap,
     this.trailing,
+    this.onMapPick,
   });
 
   final IconData icon;
@@ -96,6 +97,7 @@ class AddressRow extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final VoidCallback? onMapPick;
 
   @override
   Widget build(BuildContext context) {
@@ -141,6 +143,13 @@ class AddressRow extends StatelessWidget {
               ),
             ),
             if (trailing != null) trailing!,
+            if (onMapPick != null)
+              IconButton(
+                icon: const Icon(Icons.map_outlined, size: 22),
+                color: AppColors.accent,
+                tooltip: '',
+                onPressed: onMapPick,
+              ),
           ],
         ),
       ),
@@ -519,6 +528,58 @@ class MapFloatingButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class MapCenterPin extends StatelessWidget {
+  const MapCenterPin({
+    super.key,
+    required this.color,
+    required this.label,
+  });
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        Icon(Icons.location_on, color: color, size: 48),
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+        ),
+      ],
     );
   }
 }

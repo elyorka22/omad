@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -87,6 +88,18 @@ class _HomeScreenState extends State<HomeScreen> {
               _TaxiMap(
                 mapController: _mapController,
                 ride: ride,
+                onMapTap: ride.isMapPicking
+                    ? (point) {
+                        ride.applyMapLocation(point, l10n);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(l10n.selectedOnMap),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    : null,
               ),
               SafeArea(
                 child: Padding(
@@ -148,9 +161,48 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              if (ride.isMapPicking)
+                IgnorePointer(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: screenHeight * 0.06),
+                      child: MapCenterPin(
+                        color: ride.mapPickTarget == MapPickTarget.pickup
+                            ? AppColors.pickupMarker
+                            : AppColors.dropoffMarker,
+                        label: ride.mapPickTarget == MapPickTarget.pickup
+                            ? 'A'
+                            : 'B',
+                      ),
+                    ),
+                  ),
+                ),
+              if (ride.isMapPicking)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: screenHeight * 0.22,
+                  child: _MapPickPanel(
+                    hint: ride.mapPickTarget != null
+                        ? l10n.mapPickHint(ride.mapPickTarget!)
+                        : '',
+                    subHint: l10n.mapPickTapOrMove,
+                    onConfirm: () {
+                      ride.applyMapLocation(
+                        _mapController.camera.center,
+                        l10n,
+                      );
+                    },
+                    onCancel: ride.cancelMapPick,
+                    confirmLabel: l10n.confirmPoint,
+                    cancelLabel: l10n.cancel,
+                  ),
+                ),
               Positioned(
                 right: 16,
-                bottom: screenHeight * 0.47,
+                bottom: ride.isMapPicking
+                    ? screenHeight * 0.34
+                    : screenHeight * 0.47,
                 child: MapFloatingButton(
                   icon: Icons.my_location,
                   isActive: _locationButtonActive,
@@ -220,10 +272,12 @@ class _TaxiMap extends StatelessWidget {
   const _TaxiMap({
     required this.mapController,
     required this.ride,
+    this.onMapTap,
   });
 
   final MapController mapController;
   final RideProvider ride;
+  final void Function(LatLng point)? onMapTap;
 
   @override
   Widget build(BuildContext context) {
@@ -288,6 +342,9 @@ class _TaxiMap extends StatelessWidget {
       options: MapOptions(
         initialCenter: ride.mapCenter,
         initialZoom: 14,
+        onTap: onMapTap != null
+            ? (_, point) => onMapTap!(point)
+            : null,
         onPositionChanged: (_, __) {},
       ),
       children: [
@@ -356,7 +413,7 @@ class _OrderBottomSheet extends StatelessWidget {
     return Consumer<RideProvider>(
       builder: (context, ride, _) {
         return DraggableScrollableSheet(
-          initialChildSize: _sheetSize(ride.status),
+          initialChildSize: ride.isMapPicking ? 0.18 : _sheetSize(ride.status),
           minChildSize: 0.18,
           maxChildSize: 0.75,
           snap: true,
@@ -422,6 +479,10 @@ class _OrderBottomSheet extends StatelessWidget {
         return _IdleSheet(
           onPickupTap: onPickupTap,
           onDropoffTap: onDropoffTap,
+          onPickupMapPick: () =>
+              context.read<RideProvider>().startMapPick(MapPickTarget.pickup),
+          onDropoffMapPick: () =>
+              context.read<RideProvider>().startMapPick(MapPickTarget.dropoff),
         );
       case RideStatus.searching:
         return const _SearchingSheet();
@@ -442,10 +503,14 @@ class _IdleSheet extends StatelessWidget {
   const _IdleSheet({
     required this.onPickupTap,
     required this.onDropoffTap,
+    required this.onPickupMapPick,
+    required this.onDropoffMapPick,
   });
 
   final VoidCallback onPickupTap;
   final VoidCallback onDropoffTap;
+  final VoidCallback onPickupMapPick;
+  final VoidCallback onDropoffMapPick;
 
   @override
   Widget build(BuildContext context) {
@@ -479,6 +544,7 @@ class _IdleSheet extends StatelessWidget {
                 title: ride.pickup?.title ?? l10n.from,
                 subtitle: ride.pickup?.subtitle ?? l10n.specifyPickup,
                 onTap: onPickupTap,
+                onMapPick: onPickupMapPick,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -494,6 +560,7 @@ class _IdleSheet extends StatelessWidget {
                 title: ride.dropoff?.title ?? l10n.to,
                 subtitle: ride.dropoff?.subtitle ?? l10n.specifyDropoff,
                 onTap: onDropoffTap,
+                onMapPick: onDropoffMapPick,
                 trailing: ride.dropoff != null
                     ? IconButton(
                         icon: const Icon(Icons.close, size: 20),
@@ -503,6 +570,42 @@ class _IdleSheet extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onPickupMapPick,
+                icon: const Icon(Icons.add_location_alt_outlined, size: 18),
+                label: Text('${l10n.from}: ${l10n.pickOnMap}'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  side: const BorderSide(color: AppColors.pickupMarker),
+                  foregroundColor: AppColors.pickupMarker,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onDropoffMapPick,
+                icon: const Icon(Icons.add_location_alt_outlined, size: 18),
+                label: Text('${l10n.to}: ${l10n.pickOnMap}'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  side: const BorderSide(color: AppColors.dropoffMarker),
+                  foregroundColor: AppColors.dropoffMarker,
+                ),
+              ),
+            ),
+          ],
         ),
         if (ride.dropoff != null) ...[
           const SizedBox(height: 20),
@@ -803,6 +906,85 @@ class _CancelledSheet extends StatelessWidget {
           onPressed: ride.resetAfterRide,
         ),
       ],
+    );
+  }
+}
+
+class _MapPickPanel extends StatelessWidget {
+  const _MapPickPanel({
+    required this.hint,
+    required this.subHint,
+    required this.onConfirm,
+    required this.onCancel,
+    required this.confirmLabel,
+    required this.cancelLabel,
+  });
+
+  final String hint;
+  final String subHint;
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+  final String confirmLabel;
+  final String cancelLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 8,
+      shadowColor: AppColors.accent.withValues(alpha: 0.3),
+      borderRadius: BorderRadius.circular(20),
+      color: AppColors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              hint,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subHint,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: onCancel,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(cancelLabel),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: PrimaryButton(
+                    label: confirmLabel,
+                    onPressed: onConfirm,
+                    icon: Icons.check,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

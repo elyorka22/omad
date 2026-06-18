@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../providers/ride_provider.dart';
 import '../theme/app_theme.dart';
@@ -61,6 +62,36 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: OutlinedButton.icon(
+              onPressed: () {
+                final ride = context.read<RideProvider>();
+                Navigator.pop(context);
+                ride.startMapPick(
+                  widget.isPickup
+                      ? MapPickTarget.pickup
+                      : MapPickTarget.dropoff,
+                );
+              },
+              icon: const Icon(Icons.map_outlined),
+              label: Text(l10n.pickOnMap),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                side: BorderSide(
+                  color: widget.isPickup
+                      ? AppColors.pickupMarker
+                      : AppColors.dropoffMarker,
+                ),
+                foregroundColor: widget.isPickup
+                    ? AppColors.pickupMarker
+                    : AppColors.dropoffMarker,
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(

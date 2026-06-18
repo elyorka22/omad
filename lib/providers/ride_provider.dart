@@ -30,6 +30,7 @@ class RideProvider extends ChangeNotifier {
   Address? _dropoff;
   RideClass _selectedClass = RideClass.economy;
   RideStatus _status = RideStatus.idle;
+  MapPickTarget? _mapPickTarget;
   RideOrder? _activeOrder;
   List<LatLng> _routePoints = [];
   LatLng? _driverLocation;
@@ -47,6 +48,9 @@ class RideProvider extends ChangeNotifier {
   Address? get dropoff => _dropoff;
   RideClass get selectedClass => _selectedClass;
   RideStatus get status => _status;
+  MapPickTarget? get mapPickTarget => _mapPickTarget;
+  bool get isMapPicking =>
+      _mapPickTarget != null && _status == RideStatus.idle;
   RideOrder? get activeOrder => _activeOrder;
   List<LatLng> get routePoints => _routePoints;
   LatLng? get driverLocation => _driverLocation;
@@ -113,6 +117,7 @@ class RideProvider extends ChangeNotifier {
     }
     _dropoff = null;
     _routePoints = [];
+    _mapPickTarget = null;
     notifyListeners();
   }
 
@@ -213,6 +218,29 @@ class RideProvider extends ChangeNotifier {
     _isLoadingLocation = false;
     notifyListeners();
     return _userLocation;
+  }
+
+  void startMapPick(MapPickTarget target) {
+    if (_status != RideStatus.idle) return;
+    _mapPickTarget = target;
+    notifyListeners();
+  }
+
+  void cancelMapPick() {
+    _mapPickTarget = null;
+    notifyListeners();
+  }
+
+  void applyMapLocation(LatLng point, AppLocalizations l10n) {
+    if (_mapPickTarget == null) return;
+    final address = _locationService.addressAtPoint(point, l10n);
+    if (_mapPickTarget == MapPickTarget.pickup) {
+      setPickup(address);
+    } else {
+      setDropoff(address);
+    }
+    _mapPickTarget = null;
+    notifyListeners();
   }
 
   void setPickup(Address address) {
@@ -360,6 +388,7 @@ class RideProvider extends ChangeNotifier {
     _driverProgress = 0;
     _dropoff = null;
     _routePoints = [];
+    _mapPickTarget = null;
     notifyListeners();
   }
 

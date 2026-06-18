@@ -103,6 +103,28 @@ class AppLocalizations {
   String get enterAddress =>
       isUzbek ? 'Manzilni kiriting' : 'Введите адрес';
 
+  String get pickOnMap => isUzbek ? 'Xaritada' : 'На карте';
+
+  String get confirmPoint => isUzbek ? 'Tasdiqlash' : 'Подтвердить';
+
+  String get selectedOnMap =>
+      isUzbek ? 'Xaritadagi nuqta' : 'Точка на карте';
+
+  String mapPickHint(MapPickTarget target) {
+    if (isUzbek) {
+      return target == MapPickTarget.pickup
+          ? 'Xaritada jo\'nash nuqtasini tanlang'
+          : 'Xaritada borish nuqtasini tanlang';
+    }
+    return target == MapPickTarget.pickup
+        ? 'Выберите точку отправления на карте'
+        : 'Выберите точку назначения на карте';
+  }
+
+  String get mapPickTapOrMove => isUzbek
+      ? 'Xaritaga bosing yoki surib, tasdiqlang'
+      : 'Нажмите на карту или переместите и подтвердите';
+
   String get noLocationPermission => isUzbek
       ? 'Geolokatsiyaga ruxsat yo\'q'
       : 'Нет доступа к геолокации';

@@ -127,6 +127,15 @@ class LocationService {
           location: location,
         );
   }
+
+  Address addressAtPoint(LatLng location, AppLocalizations l10n) {
+    final near = addressNear(location, l10n);
+    return Address(
+      title: l10n.selectedOnMap,
+      subtitle: near.subtitle,
+      location: location,
+    );
+  }
 }
 
 class RouteService {

@@ -17,6 +17,11 @@ enum RideClass {
   business,
 }
 
+enum MapPickTarget {
+  pickup,
+  dropoff,
+}
+
 extension RideClassExtension on RideClass {
   String get title {
     switch (this) {

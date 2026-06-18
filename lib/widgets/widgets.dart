@@ -257,7 +257,7 @@ class DriverCard extends StatelessWidget {
           Container(
             width: 56,
             height: 56,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: AppColors.brandGradient,
               shape: BoxShape.circle,
             ),

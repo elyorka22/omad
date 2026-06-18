@@ -89,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
                   isSelected: localeProvider.locale.languageCode == 'ru',
                   onTap: () {
                     localeProvider.setRussian();
-                    ride.updateLanguage('ru', AppLocalizations('ru'));
+                    ride.updateLanguage('ru', const AppLocalizations('ru'));
                   },
                 ),
               ),
@@ -101,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
                   isSelected: localeProvider.locale.languageCode == 'uz',
                   onTap: () {
                     localeProvider.setUzbek();
-                    ride.updateLanguage('uz', AppLocalizations('uz'));
+                    ride.updateLanguage('uz', const AppLocalizations('uz'));
                   },
                 ),
               ),

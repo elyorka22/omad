@@ -105,10 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           if (localeProvider.locale.languageCode == 'uz') {
                             localeProvider.setRussian();
-                            ride.updateLanguage('ru', AppLocalizations('ru'));
+                            ride.updateLanguage('ru', const AppLocalizations('ru'));
                           } else {
                             localeProvider.setUzbek();
-                            ride.updateLanguage('uz', AppLocalizations('uz'));
+                            ride.updateLanguage('uz', const AppLocalizations('uz'));
                           }
                           _mapController.move(ride.mapCenter, 13);
                         },

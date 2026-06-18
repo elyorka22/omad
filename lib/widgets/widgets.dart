@@ -32,7 +32,7 @@ class PrimaryButton extends StatelessWidget {
           boxShadow: isEnabled
               ? [
                   BoxShadow(
-                    color: AppColors.accent.withValues(alpha: 0.35),
+                    color: AppColors.primary.withValues(alpha: 0.35),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -146,7 +146,7 @@ class AddressRow extends StatelessWidget {
             if (onMapPick != null)
               IconButton(
                 icon: const Icon(Icons.map_outlined, size: 22),
-                color: AppColors.accent,
+                color: AppColors.primary,
                 tooltip: '',
                 onPressed: onMapPick,
               ),
@@ -227,10 +227,10 @@ class RideClassCard extends StatelessWidget {
             const Spacer(),
             Text(
               priceLabel,
-              style: TextStyle(
+                style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
-                color: isSelected ? AppColors.accent : AppColors.textPrimary,
+                color: isSelected ? AppColors.primary : AppColors.textPrimary,
               ),
             ),
           ],
@@ -506,7 +506,7 @@ class MapFloatingButton extends StatelessWidget {
       color: isActive ? Colors.transparent : AppColors.surface,
       shape: const CircleBorder(),
       elevation: 6,
-      shadowColor: AppColors.accent.withValues(alpha: 0.3),
+      shadowColor: AppColors.primary.withValues(alpha: 0.25),
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
@@ -522,7 +522,7 @@ class MapFloatingButton extends StatelessWidget {
             message: tooltip ?? '',
             child: Icon(
               icon,
-              color: isActive ? AppColors.textOnPrimary : AppColors.accent,
+              color: isActive ? AppColors.textOnPrimary : AppColors.primary,
               size: 24,
             ),
           ),

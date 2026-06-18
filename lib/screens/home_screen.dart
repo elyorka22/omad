@@ -234,7 +234,7 @@ class _LanguageChip extends StatelessWidget {
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(20),
       elevation: 4,
-      shadowColor: AppColors.accent.withValues(alpha: 0.2),
+      shadowColor: AppColors.primary.withValues(alpha: 0.2),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -257,7 +257,7 @@ class _LanguageChip extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.accent,
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -359,7 +359,7 @@ class _TaxiMap extends StatelessWidget {
                 points: ride.routePoints,
                 color: AppColors.routeLine,
                 strokeWidth: 5,
-                borderColor: AppColors.accentViolet.withValues(alpha: 0.4),
+                borderColor: AppColors.accent.withValues(alpha: 0.35),
                 borderStrokeWidth: 2,
               ),
             ],
@@ -931,7 +931,7 @@ class _MapPickPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 8,
-      shadowColor: AppColors.accent.withValues(alpha: 0.3),
+      shadowColor: AppColors.primary.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(20),
       color: AppColors.surface,
       child: Padding(

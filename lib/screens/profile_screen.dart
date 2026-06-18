@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.accent.withValues(alpha: 0.25),
+                  color: AppColors.primary.withValues(alpha: 0.25),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -191,7 +191,7 @@ class _LanguageOption extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? AppColors.accent : AppColors.divider,
+              color: isSelected ? AppColors.primary : AppColors.divider,
               width: isSelected ? 2 : 1,
             ),
             gradient: isSelected ? AppColors.cardGradient : null,
@@ -203,7 +203,7 @@ class _LanguageOption extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: isSelected ? AppColors.accent : AppColors.textPrimary,
+                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 4),

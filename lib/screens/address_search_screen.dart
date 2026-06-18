@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../providers/ride_provider.dart';
 import '../theme/app_theme.dart';
-import '../widgets/widgets.dart';
 
 class AddressSearchScreen extends StatefulWidget {
   const AddressSearchScreen({

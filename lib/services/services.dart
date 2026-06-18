@@ -121,7 +121,7 @@ class RouteService {
 
   List<LatLng> buildRoutePoints(LatLng from, LatLng to) {
     final points = <LatLng>[from];
-    final steps = 12;
+    const steps = 12;
     final random = Random(from.latitude.hashCode ^ to.longitude.hashCode);
 
     for (var i = 1; i < steps; i++) {

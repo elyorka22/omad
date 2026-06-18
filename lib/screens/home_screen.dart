@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../models/models.dart';
@@ -79,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
+                                color: Colors.black.withOpacity(0.1),
                                 blurRadius: 8,
                               ),
                             ],
@@ -174,11 +173,7 @@ class _TaxiMap extends StatelessWidget {
       options: MapOptions(
         initialCenter: ride.mapCenter,
         initialZoom: 13,
-        onPositionChanged: (position, _) {
-          if (position.center != null && ride.status == RideStatus.idle) {
-            // keep map interactive
-          }
-        },
+        onPositionChanged: (_, __) {},
       ),
       children: [
         TileLayer(
@@ -614,7 +609,7 @@ class _CompletedSheet extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: AppColors.success.withValues(alpha: 0.15),
+            color: AppColors.success.withOpacity(0.15),
             shape: BoxShape.circle,
           ),
           child: const Icon(Icons.check, color: AppColors.success, size: 36),

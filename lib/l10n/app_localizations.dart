@@ -21,6 +21,28 @@ class AppLocalizations {
   String get whereToGo =>
       isUzbek ? 'Qayerga boramiz?' : 'Куда поедем?';
 
+  String get whereGoing =>
+      isUzbek ? 'Qayerga boramiz?' : 'Куда едем?';
+
+  String get yourAddress =>
+      isUzbek ? 'Sizning manzilingiz' : 'Ваш адрес';
+
+  String get pickupPoint =>
+      isUzbek ? 'Jo\'nash nuqtasi' : 'Точка посадки';
+
+  String get destinationPoint =>
+      isUzbek ? 'Borish punkti' : 'Пункт назначения';
+
+  String get whereWillYouGo =>
+      isUzbek ? 'Qayerga borasiz?' : 'Куда поедете?';
+
+  String get mapButton => isUzbek ? 'Xarita' : 'Карта';
+
+  String get taxi => isUzbek ? 'Taksi' : 'Такси';
+
+  String pickupEtaLabel(int minutes) =>
+      isUzbek ? 'Yetib kelish $minutes daq' : 'Подача $minutes мин';
+
   String get from => isUzbek ? 'Qayerdan' : 'Откуда';
   String get to => isUzbek ? 'Qayerga' : 'Куда';
 

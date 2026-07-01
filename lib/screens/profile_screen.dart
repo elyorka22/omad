@@ -27,15 +27,8 @@ class ProfileScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: AppColors.brandGradientVertical,
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.25),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
             ),
             child: Row(
               children: [
@@ -59,14 +52,14 @@ class ProfileScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textOnPrimary,
+                        color: AppColors.black,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.isUzbek ? '+998 90 123 45 67' : '+7 (999) 123-45-67',
                       style: TextStyle(
-                        color: AppColors.textOnPrimary.withValues(alpha: 0.8),
+                        color: AppColors.black.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -179,9 +172,7 @@ class _LanguageOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected
-          ? AppColors.surfaceMuted
-          : AppColors.background,
+      color: isSelected ? AppColors.primary.withValues(alpha: 0.25) : AppColors.inputFill,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,

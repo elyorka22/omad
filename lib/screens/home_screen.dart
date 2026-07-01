@@ -9,6 +9,7 @@ import '../providers/locale_provider.dart';
 import '../providers/ride_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
+import '../widgets/yandex_ui.dart';
 import 'address_search_screen.dart';
 import 'profile_screen.dart';
 
@@ -21,7 +22,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MapController _mapController = MapController();
-  bool _locationButtonActive = false;
 
   @override
   void initState() {
@@ -45,17 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _goToMyLocation() async {
     final l10n = AppLocalizations.of(context);
     final ride = context.read<RideProvider>();
-    setState(() => _locationButtonActive = true);
 
     final location = await ride.refreshMyLocation(l10n, updatePickup: true);
     if (location != null && mounted) {
       _mapController.move(location, 16);
-    }
-
-    if (mounted) {
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) setState(() => _locationButtonActive = false);
-      });
     }
   }
 
@@ -81,13 +74,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenHeight = MediaQuery.sizeOf(context).height;
 
     return Consumer2<RideProvider, LocaleProvider>(
-      builder: (context, ride, localeProvider, _) {
+      builder: (context, ride, _, _) {
         return Scaffold(
           body: Stack(
             children: [
               _TaxiMap(
                 mapController: _mapController,
                 ride: ride,
+                pickupEtaLabel: l10n.pickupEtaLabel(4),
                 onMapTap: ride.isMapPicking
                     ? (point) {
                         ride.applyMapLocation(point, l10n);
@@ -102,63 +96,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     : null,
               ),
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      _CircleButton(
-                        icon: Icons.menu,
-                        onTap: _openProfile,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 8,
+                      left: 56,
+                      right: 56,
+                      child: YandexTopAddressBar(
+                        label: l10n.yourAddress,
+                        address: ride.pickup?.title ?? l10n.detecting,
+                        onTap: () => _openAddressSearch(isPickup: true),
                       ),
-                      const Spacer(),
-                      _LanguageChip(
-                        label: localeProvider.locale.languageCode == 'uz'
-                            ? 'UZ'
-                            : 'RU',
-                        onTap: () {
-                          if (localeProvider.locale.languageCode == 'uz') {
-                            localeProvider.setRussian();
-                            ride.updateLanguage('ru', const AppLocalizations('ru'));
-                          } else {
-                            localeProvider.setUzbek();
-                            ride.updateLanguage('uz', const AppLocalizations('uz'));
-                          }
-                          _mapController.move(ride.mapCenter, 13);
-                        },
-                      ),
-                      if (ride.isLoadingLocation) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(l10n.detecting),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                left: 16,
+                bottom: ride.isMapPicking
+                    ? screenHeight * 0.34
+                    : screenHeight * 0.30,
+                child: YandexWhiteFab(
+                  icon: Icons.menu,
+                  onTap: _openProfile,
+                ),
+              ),
+              Positioned(
+                right: 16,
+                bottom: ride.isMapPicking
+                    ? screenHeight * 0.34
+                    : screenHeight * 0.30,
+                child: YandexWhiteFab(
+                  icon: Icons.near_me,
+                  onTap: ride.isLoadingLocation ? () {} : _goToMyLocation,
                 ),
               ),
               if (ride.isMapPicking)
@@ -198,21 +168,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     cancelLabel: l10n.cancel,
                   ),
                 ),
-              Positioned(
-                right: 16,
-                bottom: ride.isMapPicking
-                    ? screenHeight * 0.34
-                    : screenHeight * 0.47,
-                child: MapFloatingButton(
-                  icon: Icons.my_location,
-                  isActive: _locationButtonActive,
-                  tooltip: l10n.myLocation,
-                  onTap: ride.isLoadingLocation ? () {} : _goToMyLocation,
-                ),
-              ),
               _OrderBottomSheet(
                 onPickupTap: () => _openAddressSearch(isPickup: true),
                 onDropoffTap: () => _openAddressSearch(isPickup: false),
+                onSuggestionTap: (address) {
+                  context.read<RideProvider>().setDropoff(address);
+                },
               ),
             ],
           ),
@@ -222,61 +183,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 4,
-      shadowColor: AppColors.primary.withValues(alpha: 0.2),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.divider),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ShaderMask(
-                shaderCallback: (bounds) =>
-                    AppColors.brandGradient.createShader(bounds),
-                child: const Icon(Icons.language, size: 18, color: Colors.white),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _TaxiMap extends StatelessWidget {
   const _TaxiMap({
     required this.mapController,
     required this.ride,
+    required this.pickupEtaLabel,
     this.onMapTap,
   });
 
   final MapController mapController;
   final RideProvider ride;
+  final String pickupEtaLabel;
   final void Function(LatLng point)? onMapTap;
 
   @override
@@ -294,7 +211,19 @@ class _TaxiMap extends StatelessWidget {
       );
     }
 
-    if (ride.showPickupMarker && ride.pickup != null) {
+    if (ride.pickup != null && ride.status == RideStatus.idle) {
+      markers.add(
+        Marker(
+          point: ride.pickup!.location,
+          width: 170,
+          height: 56,
+          alignment: Alignment.bottomCenter,
+          child: YandexPickupBubble(etaLabel: pickupEtaLabel),
+        ),
+      );
+    }
+
+    if (ride.showPickupMarker && ride.pickup != null && ride.dropoff != null) {
       markers.add(
         Marker(
           point: ride.pickup!.location,
@@ -359,7 +288,7 @@ class _TaxiMap extends StatelessWidget {
                 points: ride.routePoints,
                 color: AppColors.routeLine,
                 strokeWidth: 5,
-                borderColor: AppColors.accent.withValues(alpha: 0.35),
+                borderColor: Colors.white,
                 borderStrokeWidth: 2,
               ),
             ],
@@ -370,43 +299,16 @@ class _TaxiMap extends StatelessWidget {
   }
 }
 
-class _CircleButton extends StatelessWidget {
-  const _CircleButton({
-    required this.icon,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      shape: const CircleBorder(),
-      elevation: 4,
-      shadowColor: Colors.black26,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Icon(icon, color: AppColors.textPrimary),
-        ),
-      ),
-    );
-  }
-}
-
 class _OrderBottomSheet extends StatelessWidget {
   const _OrderBottomSheet({
     required this.onPickupTap,
     required this.onDropoffTap,
+    required this.onSuggestionTap,
   });
 
   final VoidCallback onPickupTap;
   final VoidCallback onDropoffTap;
+  final void Function(Address address) onSuggestionTap;
 
   @override
   Widget build(BuildContext context) {
@@ -460,7 +362,7 @@ class _OrderBottomSheet extends StatelessWidget {
   double _sheetSize(RideStatus status) {
     switch (status) {
       case RideStatus.idle:
-        return 0.45;
+        return 0.38;
       case RideStatus.searching:
       case RideStatus.driverAssigned:
       case RideStatus.driverArriving:
@@ -479,6 +381,7 @@ class _OrderBottomSheet extends StatelessWidget {
         return _IdleSheet(
           onPickupTap: onPickupTap,
           onDropoffTap: onDropoffTap,
+          onSuggestionTap: onSuggestionTap,
           onPickupMapPick: () =>
               context.read<RideProvider>().startMapPick(MapPickTarget.pickup),
           onDropoffMapPick: () =>
@@ -503,110 +406,66 @@ class _IdleSheet extends StatelessWidget {
   const _IdleSheet({
     required this.onPickupTap,
     required this.onDropoffTap,
+    required this.onSuggestionTap,
     required this.onPickupMapPick,
     required this.onDropoffMapPick,
   });
 
   final VoidCallback onPickupTap;
   final VoidCallback onDropoffTap;
+  final void Function(Address address) onSuggestionTap;
   final VoidCallback onPickupMapPick;
   final VoidCallback onDropoffMapPick;
+
+  IconData _iconForAddress(Address address) {
+    final title = address.title.toLowerCase();
+    if (title.contains('аэропорт') ||
+        title.contains('aeroport') ||
+        title.contains('airport')) {
+      return Icons.flight;
+    }
+    return Icons.place;
+  }
 
   @override
   Widget build(BuildContext context) {
     final ride = context.watch<RideProvider>();
     final l10n = AppLocalizations.of(context);
+    final suggestions = ride.searchAddresses('').take(4).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.whereToGo,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceMuted,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.divider),
-          ),
-          child: Column(
-            children: [
-              AddressRow(
-                icon: Icons.circle,
-                iconColor: AppColors.pickupMarker,
-                title: ride.pickup?.title ?? l10n.from,
-                subtitle: ride.pickup?.subtitle ?? l10n.specifyPickup,
-                onTap: onPickupTap,
-                onMapPick: onPickupMapPick,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Container(
-                  width: 2,
-                  height: 24,
-                  color: AppColors.divider,
-                ),
-              ),
-              AddressRow(
-                icon: Icons.circle,
-                iconColor: AppColors.dropoffMarker,
-                title: ride.dropoff?.title ?? l10n.to,
-                subtitle: ride.dropoff?.subtitle ?? l10n.specifyDropoff,
-                onTap: onDropoffTap,
-                onMapPick: onDropoffMapPick,
-                trailing: ride.dropoff != null
-                    ? IconButton(
-                        icon: const Icon(Icons.close, size: 20),
-                        onPressed: ride.clearDropoff,
-                      )
-                    : null,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: onPickupMapPick,
-                icon: const Icon(Icons.add_location_alt_outlined, size: 18),
-                label: Text('${l10n.from}: ${l10n.pickOnMap}'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  side: const BorderSide(color: AppColors.pickupMarker),
-                  foregroundColor: AppColors.pickupMarker,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: onDropoffMapPick,
-                icon: const Icon(Icons.add_location_alt_outlined, size: 18),
-                label: Text('${l10n.to}: ${l10n.pickOnMap}'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  side: const BorderSide(color: AppColors.dropoffMarker),
-                  foregroundColor: AppColors.dropoffMarker,
-                ),
+            const YandexGoLogo(size: 36),
+            const SizedBox(width: 10),
+            Text(
+              l10n.taxi,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        YandexDestinationBar(
+          hint: l10n.whereGoing,
+          value: ride.dropoff?.title,
+          onTap: onDropoffTap,
+        ),
+        if (ride.dropoff == null) ...[
+          const SizedBox(height: 8),
+          ...suggestions.map(
+            (address) => YandexSuggestionTile(
+              icon: _iconForAddress(address),
+              title: address.title,
+              subtitle: address.subtitle,
+              onTap: () => onSuggestionTap(address),
+            ),
+          ),
+        ],
         if (ride.dropoff != null) ...[
           const SizedBox(height: 20),
           SizedBox(

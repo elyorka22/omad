@@ -1,57 +1,47 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Aurora Pulse — коралл + фиолет + тёплый фон
-  static const Color primary = Color(0xFFFF4757);
-  static const Color primaryDark = Color(0xFFE8364A);
-  static const Color accent = Color(0xFF7C3AED);
-  static const Color accentViolet = Color(0xFF9333EA);
-  static const Color accentCoral = Color(0xFFFF6B6B);
-  static const Color accentMint = Color(0xFF2DD4BF);
-
-  static const Color background = Color(0xFFFFFAF8);
+  // Yandex Go style
+  static const Color primary = Color(0xFFFFCC00);
+  static const Color primaryDark = Color(0xFFF2C200);
+  static const Color black = Color(0xFF000000);
+  static const Color background = Color(0xFFF5F5F5);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceMuted = Color(0xFFFFF1F2);
+  static const Color inputFill = Color(0xFFF5F5F5);
+  static const Color iconGray = Color(0xFFE5E5EA);
 
-  static const Color textPrimary = Color(0xFF1C1917);
-  static const Color textSecondary = Color(0xFF78716C);
-  static const Color textOnPrimary = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF000000);
+  static const Color textSecondary = Color(0xFF8E8E93);
+  static const Color textOnPrimary = Color(0xFF000000);
 
-  static const Color divider = Color(0xFFFECDD3);
-  static const Color success = Color(0xFF10B981);
-  static const Color error = Color(0xFFEF4444);
-  static const Color warning = Color(0xFFFBBF24);
+  static const Color divider = Color(0xFFE5E5EA);
+  static const Color success = Color(0xFF34C759);
+  static const Color error = Color(0xFFFF3B30);
+  static const Color warning = Color(0xFFFF9500);
 
-  static const Color mapOverlay = Color(0x991C1917);
-  static const Color routeLine = Color(0xFF7C3AED);
-  static const Color pickupMarker = Color(0xFF10B981);
-  static const Color dropoffMarker = Color(0xFFFF4757);
-  static const Color driverMarker = Color(0xFF9333EA);
-  static const Color userLocation = Color(0xFFFF4757);
+  static const Color routeLine = Color(0xFF000000);
+  static const Color pickupMarker = Color(0xFFFFCC00);
+  static const Color dropoffMarker = Color(0xFF000000);
+  static const Color driverMarker = Color(0xFF007AFF);
+  static const Color userLocation = Color(0xFF007AFF);
 
-  static const Color darkBg = Color(0xFF1C1917);
-  static const Color darkSurface = Color(0xFF292524);
+  static const Color darkBg = Color(0xFF1C1C1E);
+  static const Color darkSurface = Color(0xFF2C2C2E);
 
   static const LinearGradient brandGradient = LinearGradient(
-    colors: [Color(0xFFFF4757), Color(0xFF7C3AED)],
-    begin: Alignment.centerLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient brandGradientVertical = LinearGradient(
-    colors: [Color(0xFFFF4757), Color(0xFFDB2777), Color(0xFF7C3AED)],
+    colors: [primary, primaryDark],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient splashGradient = LinearGradient(
-    colors: [Color(0xFF1C1917), Color(0xFF581C87), Color(0xFF9F1239)],
+    colors: [primary, Color(0xFFFFE066)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0x26FF4757), Color(0x267C3AED)],
+    colors: [Color(0x1AFFCC00), Color(0x0DFFCC00)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -63,12 +53,11 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
+      fontFamily: 'Roboto',
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: AppColors.textOnPrimary,
-        secondary: AppColors.accent,
-        onSecondary: AppColors.textOnPrimary,
-        tertiary: AppColors.accentMint,
+        secondary: AppColors.black,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
         error: AppColors.error,
@@ -97,31 +86,28 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surfaceMuted,
+        fillColor: AppColors.inputFill,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.accent, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        hintStyle: const TextStyle(color: AppColors.textSecondary),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
       ),
       dividerTheme: const DividerThemeData(color: AppColors.divider),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppColors.primary,
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.textOnPrimary,
+        color: AppColors.black,
       ),
     );
   }

@@ -24,54 +24,41 @@ class PrimaryButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 56,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: isEnabled ? AppColors.brandGradient : null,
-          color: isEnabled ? null : AppColors.divider,
+      child: Material(
+        color: isEnabled ? AppColors.primary : AppColors.divider,
+        borderRadius: BorderRadius.circular(16),
+        elevation: isEnabled ? 2 : 0,
+        shadowColor: Colors.black.withValues(alpha: 0.12),
+        child: InkWell(
+          onTap: isLoading ? null : onPressed,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: isEnabled
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.35),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: isLoading ? null : onPressed,
-            borderRadius: BorderRadius.circular(16),
-            child: Center(
-              child: isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: AppColors.textOnPrimary,
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (icon != null) ...[
-                          Icon(icon, size: 20, color: AppColors.textOnPrimary),
-                          const SizedBox(width: 8),
-                        ],
-                        Text(
-                          label,
-                          style: const TextStyle(
-                            color: AppColors.textOnPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: AppColors.black,
                     ),
-            ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(icon, size: 20, color: AppColors.black),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: AppColors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -185,21 +172,12 @@ class RideClassCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.surfaceMuted : AppColors.background,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.2) : AppColors.inputFill,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.divider,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            width: 2,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,10 +234,9 @@ class DriverCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+        decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider),
       ),
       child: Row(
         children: [
@@ -267,7 +244,7 @@ class DriverCard extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: const BoxDecoration(
-              gradient: AppColors.brandGradient,
+              color: AppColors.primary,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -503,28 +480,20 @@ class MapFloatingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isActive ? Colors.transparent : AppColors.surface,
+      color: isActive ? AppColors.primary : AppColors.surface,
       shape: const CircleBorder(),
       elevation: 6,
       shadowColor: AppColors.primary.withValues(alpha: 0.25),
       child: InkWell(
         onTap: onTap,
         customBorder: const CircleBorder(),
-        child: Container(
+        child: SizedBox(
           width: 52,
           height: 52,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: isActive ? AppColors.brandGradient : null,
-            color: isActive ? null : AppColors.surface,
-          ),
-          child: Tooltip(
-            message: tooltip ?? '',
-            child: Icon(
-              icon,
-              color: isActive ? AppColors.textOnPrimary : AppColors.primary,
-              size: 24,
-            ),
+          child: Icon(
+            icon,
+            color: AppColors.black,
+            size: 24,
           ),
         ),
       ),

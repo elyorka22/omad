@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../providers/ride_provider.dart';
 import '../theme/app_theme.dart';
+import '../widgets/yandex_ui.dart';
 
 class AddressSearchScreen extends StatefulWidget {
   const AddressSearchScreen({
@@ -25,8 +26,11 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
   @override
   void initState() {
     super.initState();
-    _results = context.read<RideProvider>().searchAddresses('');
-    _controller.addListener(_onSearchChanged);
+    final ride = context.read<RideProvider>();
+    _results = ride.searchAddresses('');
+    if (!widget.isPickup) {
+      _controller.addListener(_onSearchChanged);
+    }
   }
 
   void _onSearchChanged() {
@@ -45,6 +49,27 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
     Navigator.pop(context);
   }
 
+  void _openMapPick() {
+    final ride = context.read<RideProvider>();
+    Navigator.pop(context);
+    ride.startMapPick(
+      widget.isPickup ? MapPickTarget.pickup : MapPickTarget.dropoff,
+    );
+  }
+
+  IconData _iconForAddress(Address address) {
+    final title = address.title.toLowerCase();
+    if (title.contains('аэропорт') ||
+        title.contains('aeroport') ||
+        title.contains('airport')) {
+      return Icons.flight;
+    }
+    if (title.contains('метро') || title.contains('metro')) {
+      return Icons.subway;
+    }
+    return Icons.place;
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -53,89 +78,84 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ride = context.watch<RideProvider>();
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isPickup ? l10n.from : l10n.to),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: OutlinedButton.icon(
-              onPressed: () {
-                final ride = context.read<RideProvider>();
-                Navigator.pop(context);
-                ride.startMapPick(
-                  widget.isPickup
-                      ? MapPickTarget.pickup
-                      : MapPickTarget.dropoff,
-                );
-              },
-              icon: const Icon(Icons.map_outlined),
-              label: Text(l10n.pickOnMap),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                side: BorderSide(
-                  color: widget.isPickup
-                      ? AppColors.pickupMarker
-                      : AppColors.dropoffMarker,
-                ),
-                foregroundColor: widget.isPickup
-                    ? AppColors.pickupMarker
-                    : AppColors.dropoffMarker,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: l10n.enterAddress,
-                prefixIcon: Icon(
-                  widget.isPickup ? Icons.trip_origin : Icons.location_on,
-                  color: widget.isPickup
-                      ? AppColors.pickupMarker
-                      : AppColors.dropoffMarker,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _results.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final address = _results[index];
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(10),
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            YandexAddressCard(
+              pickupLabel: l10n.pickupPoint,
+              pickupAddress: ride.pickup?.title ?? l10n.specifyPickup,
+              destinationLabel: l10n.destinationPoint,
+              destinationHint: l10n.whereWillYouGo,
+              destinationAddress: ride.dropoff?.title,
+              mapButtonLabel: l10n.mapButton,
+              focusDestination: !widget.isPickup,
+              onPickupTap: () {
+                if (!widget.isPickup) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const AddressSearchScreen(isPickup: true),
                     ),
-                    child: const Icon(Icons.place, color: AppColors.textSecondary),
-                  ),
-                  title: Text(
-                    address.title,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(address.subtitle),
-                  onTap: () => _selectAddress(address),
-                );
+                  );
+                }
               },
+              onDestinationTap: () {
+                if (widget.isPickup) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const AddressSearchScreen(isPickup: false),
+                    ),
+                  );
+                }
+              },
+              onMapTap: _openMapPick,
             ),
-          ),
-        ],
+            if (!widget.isPickup)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextField(
+                  controller: _controller,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: l10n.enterAddress,
+                    prefixIcon: const Icon(Icons.search),
+                  ),
+                  onChanged: (_) => _onSearchChanged(),
+                ),
+              ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Container(
+                color: AppColors.surface,
+                child: ListView.separated(
+                  itemCount: _results.length,
+                  separatorBuilder: (_, __) => const Divider(
+                    height: 1,
+                    indent: 74,
+                  ),
+                  itemBuilder: (context, index) {
+                    final address = _results[index];
+                    return YandexSuggestionTile(
+                      icon: _iconForAddress(address),
+                      title: address.title,
+                      subtitle: address.subtitle,
+                      onTap: () => _selectAddress(address),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

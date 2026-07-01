@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenHeight = MediaQuery.sizeOf(context).height;
 
     return Consumer2<RideProvider, LocaleProvider>(
-      builder: (context, ride, _, _) {
+      builder: (context, ride, _, __) {
         return Scaffold(
           body: Stack(
             children: [
